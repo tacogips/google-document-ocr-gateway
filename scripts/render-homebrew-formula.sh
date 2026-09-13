@@ -67,7 +67,6 @@ main() {
 class GoogleDocumentOcrGateway < Formula
   desc "Google Document AI command-line client"
   homepage "https://github.com/tacogips/google-document-ocr-gateway"
-  version "$version"
   license "MIT"
 
   livecheck do
