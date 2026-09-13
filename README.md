@@ -1,4 +1,4 @@
-# google-document-ocr
+# google-document-ocr-gateway
 
 Swift library and CLI for Google Document AI. The discovery-backed client exposes
 all 42 v1 and 48 v1beta3 methods in Google's bundled revision 20260901, including
@@ -12,16 +12,16 @@ evidence and the limits of offline testing.
 
 ```sh
 swift build
-swift run google-document-ocr --help
-swift run google-document-ocr methods --api-version v1beta3
-swift run google-document-ocr discovery --api-version v1
+swift run google-document-ocr-gateway --help
+swift run google-document-ocr-gateway methods --api-version v1beta3
+swift run google-document-ocr-gateway discovery --api-version v1
 
 # Supply an access token through the environment, never as a command argument.
-export GOOGLE_DOCUMENT_OCR_ACCESS_TOKEN="$(gcloud auth print-access-token)"
-swift run google-document-ocr reader projects.locations.processors.list \
+export GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN="$(gcloud auth print-access-token)"
+swift run google-document-ocr-gateway reader projects.locations.processors.list \
   --location us --param parent=projects/PROJECT/locations/us
 
-swift run google-document-ocr writer projects.locations.processors.process \
+swift run google-document-ocr-gateway writer projects.locations.processors.process \
   --location us --param name=projects/PROJECT/locations/us/processors/PROCESSOR \
   --body request.json
 ```
@@ -78,11 +78,11 @@ Run `swift test` and `mise exec -- swiftlint --quiet` for local verification.
 ## Local documents and pagination
 
 ```sh
-google-document-ocr writer projects.locations.processors.process \
+google-document-ocr-gateway writer projects.locations.processors.process \
   --param name=projects/PROJECT/locations/us/processors/PROCESSOR \
   --file invoice.pdf --mime-type application/pdf
 
-google-document-ocr reader projects.locations.processors.list \
+google-document-ocr-gateway reader projects.locations.processors.list \
   --param parent=projects/PROJECT/locations/us --all-pages
 ```
 
@@ -104,11 +104,11 @@ complete terminal operation, including metadata and response. Without `--wait`,
 the initial operation is returned immediately.
 
 ```sh
-google-document-ocr writer projects.locations.processors.batchProcess \
+google-document-ocr-gateway writer projects.locations.processors.batchProcess \
   --param name=projects/PROJECT/locations/us/processors/PROCESSOR \
   --body batch.json --wait --timeout 600 --poll-interval 2
 
-google-document-ocr reader projects.locations.operations.get \
+google-document-ocr-gateway reader projects.locations.operations.get \
   --param name=projects/PROJECT/locations/us/operations/OPERATION --wait
 ```
 
@@ -129,7 +129,7 @@ contains downloaded service-account JSON. It is mutually exclusive with
 `--access-token-env`. No gcloud subprocess is required for this mode.
 
 ```sh
-google-document-ocr reader projects.locations.processors.list \
+google-document-ocr-gateway reader projects.locations.processors.list \
   --param parent=projects/PROJECT/locations/us \
   --service-account-env GOOGLE_APPLICATION_CREDENTIALS_JSON
 ```
@@ -150,6 +150,6 @@ Protocol reference: [Google service-account OAuth](https://developers.google.com
 
 Run `python3 scripts/test-installed-cli.py .build/debug` after building. This
 checks that a relocated binary, including invocation through a symlink, uses
-its installed discovery resources. Ship the `google-document-ocr_AppCore.bundle`
+its installed discovery resources. Ship the `google-document-ocr-gateway_AppCore.bundle`
 next to the executable on macOS; the Homebrew archive and Cask staging scripts
 include it. The formula keeps both under `libexec` and installs a launcher.

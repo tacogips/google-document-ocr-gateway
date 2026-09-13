@@ -17,7 +17,7 @@ public struct DocumentAICLI: Sendable {
   }
 
   public static let usage = """
-  Usage: google-document-ocr <command> [options]
+  Usage: google-document-ocr-gateway <command> [options]
     methods [--api-version v1|v1beta3]        List every API method and its capability
     discovery [--api-version v1|v1beta3]      Print full API discovery JSON and schemas
     reader|writer|deleter METHOD [options]   Call a Document AI method
@@ -28,7 +28,7 @@ public struct DocumentAICLI: Sendable {
     --location LOCATION      Regional endpoint (default: us); global for global endpoint
     --param NAME=VALUE       Path or query parameter; repeat for repeated query values
     --body FILE              JSON request file; '-' reads standard input
-    --access-token-env NAME  Token variable (default: GOOGLE_DOCUMENT_OCR_ACCESS_TOKEN)
+    --access-token-env NAME  Token variable (default: GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN)
     --service-account-env NAME  Environment variable containing service-account JSON
     --all-pages             Return an array of complete pages for a paginated read
     --file FILE             Read local OCR input (process methods only)
@@ -39,7 +39,7 @@ public struct DocumentAICLI: Sendable {
     --help, --version
 
   Example:
-    google-document-ocr writer projects.locations.processors.process \\
+    google-document-ocr-gateway writer projects.locations.processors.process \\
       --location us --param name=projects/PROJECT/locations/us/processors/PROCESSOR \\
       --body request.json
   """
@@ -152,7 +152,7 @@ public struct DocumentAICLI: Sendable {
       }
       return try DocumentAIServiceAccountTokenProvider(credentialJSON: Data(json.utf8))
     }
-    return DocumentAIEnvironmentTokenProvider(variable: options["--access-token-env"] ?? "GOOGLE_DOCUMENT_OCR_ACCESS_TOKEN")
+    return DocumentAIEnvironmentTokenProvider(variable: options["--access-token-env"] ?? "GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN")
   }
 
   private func execute(

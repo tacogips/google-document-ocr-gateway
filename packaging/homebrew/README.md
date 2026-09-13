@@ -2,7 +2,7 @@
 
 This project ships two Homebrew release paths:
 
-- Formula: unsigned tarballs containing `bin/google-document-ocr`.
+- Formula: unsigned tarballs containing `bin/google-document-ocr-gateway`.
 - Cask: signed, notarized, and stapled macOS DMGs containing the command line tool.
 
 Swift formula archives are macOS-only by default. Add Linux archives only after
@@ -19,17 +19,17 @@ scripts/build-homebrew-release.sh darwin-arm64 darwin-x64
 The command writes archives and checksums under `dist/homebrew/`:
 
 ```text
-dist/homebrew/google-document-ocr-<version>-darwin-arm64.tar.gz
-dist/homebrew/google-document-ocr-<version>-darwin-arm64.tar.gz.sha256
-dist/homebrew/google-document-ocr-<version>-darwin-x64.tar.gz
-dist/homebrew/google-document-ocr-<version>-darwin-x64.tar.gz.sha256
+dist/homebrew/google-document-ocr-gateway-<version>-darwin-arm64.tar.gz
+dist/homebrew/google-document-ocr-gateway-<version>-darwin-arm64.tar.gz.sha256
+dist/homebrew/google-document-ocr-gateway-<version>-darwin-x64.tar.gz
+dist/homebrew/google-document-ocr-gateway-<version>-darwin-x64.tar.gz.sha256
 ```
 
 Publish those assets to the GitHub release named `v<version>`, then render the
 formula into a tap checkout:
 
 ```bash
-scripts/render-homebrew-formula.sh <version> ../homebrew-tap/Formula/google-document-ocr.rb
+scripts/render-homebrew-formula.sh <version> ../homebrew-tap/Formula/google-document-ocr-gateway.rb
 ```
 
 ## Cask
@@ -44,16 +44,16 @@ kinko exec --env APPLE_SIGNING_IDENTITY,APPLE_ID,APPLE_PASSWORD,APPLE_TEAM_ID --
 This writes:
 
 ```text
-dist/homebrew-cask/google-document-ocr-<version>-darwin-arm64.dmg
-dist/homebrew-cask/google-document-ocr-<version>-darwin-arm64.dmg.sha256
-dist/homebrew-cask/google-document-ocr-<version>-darwin-x64.dmg
-dist/homebrew-cask/google-document-ocr-<version>-darwin-x64.dmg.sha256
+dist/homebrew-cask/google-document-ocr-gateway-<version>-darwin-arm64.dmg
+dist/homebrew-cask/google-document-ocr-gateway-<version>-darwin-arm64.dmg.sha256
+dist/homebrew-cask/google-document-ocr-gateway-<version>-darwin-x64.dmg
+dist/homebrew-cask/google-document-ocr-gateway-<version>-darwin-x64.dmg.sha256
 ```
 
 Render the Cask:
 
 ```bash
-scripts/render-homebrew-cask.sh <version> ../homebrew-tap/Casks/google-document-ocr.rb
+scripts/render-homebrew-cask.sh <version> ../homebrew-tap/Casks/google-document-ocr-gateway.rb
 ```
 
 For a tagged release, the local wrapper verifies the tag, builds DMGs, uploads
@@ -69,10 +69,10 @@ kinko exec --env APPLE_SIGNING_IDENTITY,APPLE_ID,APPLE_PASSWORD,APPLE_TEAM_ID --
 From the tap checkout:
 
 ```bash
-ruby -c Formula/google-document-ocr.rb
-brew audit --strict google-document-ocr || brew audit --strict --formula google-document-ocr
-brew fetch --cask user/tap/google-document-ocr
-HOMEBREW_NO_GITHUB_API=1 brew audit --cask user/tap/google-document-ocr
+ruby -c Formula/google-document-ocr-gateway.rb
+brew audit --strict google-document-ocr-gateway || brew audit --strict --formula google-document-ocr-gateway
+brew fetch --cask tacogips/tap/google-document-ocr-gateway
+HOMEBREW_NO_GITHUB_API=1 brew audit --cask tacogips/tap/google-document-ocr-gateway
 ```
 
 If online audit fails due local GitHub credentials or rate limits, run the

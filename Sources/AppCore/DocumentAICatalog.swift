@@ -63,8 +63,8 @@ public struct DocumentAICatalog: Sendable {
     let installedBundle: Bundle?
     if let executable = Bundle.main.executableURL?.resolvingSymlinksInPath() {
       let directory = executable.deletingLastPathComponent()
-      installedBundle = Bundle(url: directory.appendingPathComponent("google-document-ocr_AppCore.bundle"))
-        ?? Bundle(url: directory.appendingPathComponent("google-document-ocr_AppCore.resources"))
+      installedBundle = Bundle(url: directory.appendingPathComponent("google-document-ocr-gateway_AppCore.bundle"))
+        ?? Bundle(url: directory.appendingPathComponent("google-document-ocr-gateway_AppCore.resources"))
     } else { installedBundle = nil }
     let resources = installedBundle ?? Bundle.module
     guard let url = resources.url(

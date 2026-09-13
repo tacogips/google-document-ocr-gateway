@@ -3,8 +3,8 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
-artifact_name="google-document-ocr"
-github_repository="user/repo"
+artifact_name="google-document-ocr-gateway"
+github_repository="tacogips/google-document-ocr-gateway"
 
 usage() {
   cat <<EOF
@@ -45,7 +45,7 @@ fi
 case "$release_tag" in
   v*) ;;
   *)
-    printf 'error: release tag must start with v, for example v0.1.0\n' >&2
+    printf 'error: release tag must start with v, for example v0.1.1\n' >&2
     exit 1
     ;;
 esac
@@ -89,7 +89,7 @@ release_notes="Signed, notarized, and stapled macOS DMG archives for the Homebre
 if ! gh release view "$release_tag" --repo "$github_repository" >/dev/null 2>&1; then
   gh release create "$release_tag" \
     --repo "$github_repository" \
-    --title "google-document-ocr $release_tag" \
+    --title "google-document-ocr-gateway $release_tag" \
     --notes "$release_notes"
 fi
 
@@ -100,5 +100,5 @@ scripts/render-homebrew-cask.sh "$version" "$tap_cask_file"
 printf '\nRendered tap cask: %s\n' "$tap_cask_file"
 printf 'Review, commit, and push the tap change from the tap repository.\n'
 printf 'Then install with:\n'
-printf '  brew tap user/tap\n'
-printf '  brew install --cask google-document-ocr\n'
+printf '  brew tap tacogips/tap\n'
+printf '  brew install --cask google-document-ocr-gateway\n'

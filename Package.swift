@@ -3,13 +3,13 @@
 import PackageDescription
 
 let package = Package(
-  name: "google-document-ocr",
+  name: "google-document-ocr-gateway",
   platforms: [
     .macOS(.v14)
   ],
   products: [
     .library(name: "AppCore", targets: ["AppCore"]),
-    .executable(name: "google-document-ocr", targets: ["AppCLI"])
+    .executable(name: "google-document-ocr-gateway", targets: ["AppCLI"])
   ],
   targets: [
     .target(name: "AppCore", resources: [.copy("Resources")]),

@@ -1,6 +1,6 @@
 # Command
 
-`google-document-ocr methods` lists the entire selected API surface;
+`google-document-ocr-gateway methods` lists the entire selected API surface;
 `discovery` prints the original API metadata and request/response schemas.
 `reader|writer|deleter METHOD` invokes a discovery method ID using repeated
 `--param NAME=VALUE`, optional `--body FILE`, explicit `--location`, and optional

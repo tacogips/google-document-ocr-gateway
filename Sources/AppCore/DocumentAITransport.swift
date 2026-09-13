@@ -44,7 +44,7 @@ public protocol DocumentAIAccessTokenProvider: Sendable {
 public struct DocumentAIEnvironmentTokenProvider: DocumentAIAccessTokenProvider {
   public let variable: String
 
-  public init(variable: String = "GOOGLE_DOCUMENT_OCR_ACCESS_TOKEN") { self.variable = variable }
+  public init(variable: String = "GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN") { self.variable = variable }
 
   public func accessToken() async throws -> String {
     guard let token = ProcessInfo.processInfo.environment[variable], !token.isEmpty else {

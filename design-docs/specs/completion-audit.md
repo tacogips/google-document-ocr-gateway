@@ -9,7 +9,7 @@ available from both interfaces.
 | Requirement | Implementation | Verification |
 | --- | --- | --- |
 | Public Swift SDK | AppCore library product; public async DocumentAIClient and catalog, token and transport protocols | SwiftPM build and direct public-client tests |
-| Executable CLI | google-document-ocr product and DocumentAICLI adapter | Every method executes through CLI parsing and mock transport |
+| Executable CLI | google-document-ocr-gateway product and DocumentAICLI adapter | Every method executes through CLI parsing and mock transport |
 | Full current API surface | Discovery-backed v1 and v1beta3 dispatch; all path/query parameters and raw request bodies | Live discovery parity: 42 + 48 methods; 324 schemas per version; coverage table in api-coverage.md |
 | Full OCR options and results | Complete raw JSON bodies/responses; offline schema access; local document insertion | Raw numeric/unknown-field preservation, OCR configuration and CLI file tests |
 | Processor, version, evaluation, schema and dataset management | All discovery methods use the common dispatcher | Per-method HTTP/path/query and capability checks |

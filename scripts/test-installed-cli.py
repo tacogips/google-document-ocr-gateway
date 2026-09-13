@@ -12,13 +12,13 @@ with tempfile.TemporaryDirectory(prefix="document-ai-install-") as directory:
     root = pathlib.Path(directory)
     install = root / "libexec"
     install.mkdir()
-    binary = install / "google-document-ocr"
+    binary = install / "google-document-ocr-gateway"
     shutil.copy2(source / binary.name, binary)
     bundles = list(source.glob("*.bundle")) + list(source.glob("*.resources"))
     assert bundles, "No resource bundle was built"
     for bundle in bundles:
         shutil.copytree(bundle, install / bundle.name)
-    link = root / "google-document-ocr"
+    link = root / "google-document-ocr-gateway"
     link.symlink_to(binary)
     for command in [binary, link]:
         for version, count in [("v1", 42), ("v1beta3", 48)]:

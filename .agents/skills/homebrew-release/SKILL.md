@@ -8,8 +8,8 @@ description: Use when building, validating, publishing, or tap-rendering Homebre
 Use this skill for Formula releases installed with:
 
 ```bash
-brew tap user/tap
-brew install google-document-ocr
+brew tap tacogips/tap
+brew install google-document-ocr-gateway
 ```
 
 Use `.agents/skills/macos-cask-release/SKILL.md` for signed and notarized Cask
@@ -28,8 +28,8 @@ The default Swift formula contract is macOS-only:
 
 | Homebrew platform | Release asset |
 | --- | --- |
-| macOS Apple Silicon | `google-document-ocr-<version>-darwin-arm64.tar.gz` |
-| macOS Intel | `google-document-ocr-<version>-darwin-x64.tar.gz` |
+| macOS Apple Silicon | `google-document-ocr-gateway-<version>-darwin-arm64.tar.gz` |
+| macOS Intel | `google-document-ocr-gateway-<version>-darwin-x64.tar.gz` |
 
 Do not add Linux assets unless the project has a reviewed Swift Linux runtime
 contract.
@@ -62,7 +62,7 @@ For a custom tap path:
 
 ```bash
 version="$(tr -d '[:space:]' < VERSION)"
-scripts/render-homebrew-formula.sh "$version" /path/to/homebrew-tap/Formula/google-document-ocr.rb
+scripts/render-homebrew-formula.sh "$version" /path/to/homebrew-tap/Formula/google-document-ocr-gateway.rb
 ```
 
 ## Publishing Notes
@@ -72,7 +72,7 @@ exist:
 
 ```bash
 version="$(tr -d '[:space:]' < VERSION)"
-gh release view "v${version}" --repo user/repo
+gh release view "v${version}" --repo tacogips/google-document-ocr-gateway
 ```
 
 If publishing is explicitly requested:
@@ -80,9 +80,9 @@ If publishing is explicitly requested:
 ```bash
 version="$(tr -d '[:space:]' < VERSION)"
 gh release upload "v${version}" \
-  "dist/homebrew/google-document-ocr-${version}-darwin-arm64.tar.gz" \
-  "dist/homebrew/google-document-ocr-${version}-darwin-x64.tar.gz" \
-  --repo user/repo \
+  "dist/homebrew/google-document-ocr-gateway-${version}-darwin-arm64.tar.gz" \
+  "dist/homebrew/google-document-ocr-gateway-${version}-darwin-x64.tar.gz" \
+  --repo tacogips/google-document-ocr-gateway \
   --clobber
 ```
 
@@ -91,11 +91,11 @@ gh release upload "v${version}" \
 From the tap checkout:
 
 ```bash
-ruby -c Formula/google-document-ocr.rb
-brew audit --strict google-document-ocr || brew audit --strict --formula google-document-ocr
-brew install user/tap/google-document-ocr
-google-document-ocr --version
-brew test user/tap/google-document-ocr
+ruby -c Formula/google-document-ocr-gateway.rb
+brew audit --strict google-document-ocr-gateway || brew audit --strict --formula google-document-ocr-gateway
+brew install tacogips/tap/google-document-ocr-gateway
+google-document-ocr-gateway --version
+brew test tacogips/tap/google-document-ocr-gateway
 ```
 
 If online audit fails because of local GitHub credentials or rate limits, run a
@@ -105,8 +105,8 @@ non-online audit and report the limitation.
 
 After pushing the tap Formula, require the tap's `update-api-metadata.yml`
 workflow to succeed for that commit. Derive the GitHub tap repository from
-`user/tap`, wait for the matching workflow run, then
-verify `api/formula/google-document-ocr.json` from
+`tacogips/tap`, wait for the matching workflow run, then
+verify `api/formula/google-document-ocr-gateway.json` from
 GitHub Raw. The JSON release is incomplete unless `.versions.stable` equals the
 release version and `.ruby_source_checksum.sha256` equals the SHA-256 of the
 committed Formula Ruby file.

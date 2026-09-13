@@ -16,7 +16,7 @@ You (the LLM model) must include a paraphrase or summary of the user's instructi
 
 ## Project Overview
 
-This is `google-document-ocr`, a Swift Package Manager project with mise-managed tools and tasks, Homebrew formula packaging, and optional signed Homebrew Cask packaging.
+This is `google-document-ocr-gateway`, a Swift Package Manager project with mise-managed tools and tasks, Homebrew formula packaging, and optional signed Homebrew Cask packaging.
 
 ## Development Environment
 
@@ -32,7 +32,7 @@ This is `google-document-ocr`, a Swift Package Manager project with mise-managed
 mise run build
 mise run test
 mise run lint
-swift run google-document-ocr --help
+swift run google-document-ocr-gateway --help
 ```
 
 ## Swift Code Development

@@ -3,8 +3,8 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
-artifact_name="google-document-ocr"
-product="google-document-ocr"
+artifact_name="google-document-ocr-gateway"
+product="google-document-ocr-gateway"
 
 usage() {
   cat <<EOF
@@ -20,7 +20,7 @@ Environment:
 
 Example:
   scripts/build-homebrew-release.sh darwin-arm64 darwin-x64
-  scripts/render-homebrew-formula.sh 0.1.0 Formula/$artifact_name.rb
+  scripts/render-homebrew-formula.sh 0.1.1 Formula/$artifact_name.rb
 
 This renderer expects Swift macOS release archives. Linux archives are
 unsupported until the project defines a reviewed Swift Linux build contract.
@@ -56,7 +56,7 @@ main() {
   version="$1"
   output="${2:-$repo_root/Formula/$artifact_name.rb}"
   release_dir="${RELEASE_DIR:-$repo_root/dist/homebrew}"
-  release_base_url="${RELEASE_BASE_URL:-https://github.com/tacogips/google-document-ocr/releases/download/v$version}"
+  release_base_url="${RELEASE_BASE_URL:-https://github.com/tacogips/google-document-ocr-gateway/releases/download/v$version}"
 
   local darwin_arm64_sha darwin_x64_sha
   darwin_arm64_sha="$(sha_for_target "$version" darwin-arm64 "$release_dir")"
@@ -64,9 +64,9 @@ main() {
 
   mkdir -p "$(dirname "$output")"
   cat > "$output" <<EOF
-class GoogleDocumentOcr < Formula
+class GoogleDocumentOcrGateway < Formula
   desc "Google Document AI command-line client"
-  homepage "https://github.com/tacogips/google-document-ocr"
+  homepage "https://github.com/tacogips/google-document-ocr-gateway"
   version "$version"
   license "MIT"
 

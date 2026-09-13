@@ -8,7 +8,7 @@ import Testing
 
 @Test func commandReportsUsage() throws {
   let command = AppCommand(arguments: ["--help"])
-  #expect(try command.run().contains("Usage: google-document-ocr"))
+  #expect(try command.run().contains("Usage: google-document-ocr-gateway"))
 }
 
 @Test func commandRejectsUnknownFlags() throws {

@@ -3,8 +3,8 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
-artifact_name="google-document-ocr"
-product="google-document-ocr"
+artifact_name="google-document-ocr-gateway"
+product="google-document-ocr-gateway"
 
 usage() {
   cat <<EOF
@@ -20,7 +20,7 @@ Environment:
 
 Example:
   scripts/build-homebrew-cask-release.sh darwin-arm64 darwin-x64
-  scripts/render-homebrew-cask.sh 0.1.0 ../homebrew-tap/Casks/$artifact_name.rb
+  scripts/render-homebrew-cask.sh 0.1.1 ../homebrew-tap/Casks/$artifact_name.rb
 
 This renderer expects signed, notarized, and stapled macOS .dmg artifacts.
 EOF
@@ -55,7 +55,7 @@ main() {
   version="$1"
   output="${2:-$repo_root/Casks/$artifact_name.rb}"
   release_dir="${CASK_RELEASE_DIR:-$repo_root/dist/homebrew-cask}"
-  release_base_url="${CASK_RELEASE_BASE_URL:-https://github.com/user/repo/releases/download/v$version}"
+  release_base_url="${CASK_RELEASE_BASE_URL:-https://github.com/tacogips/google-document-ocr-gateway/releases/download/v$version}"
 
   local darwin_arm64_sha darwin_x64_sha
   darwin_arm64_sha="$(sha_for_target "$version" darwin-arm64 "$release_dir")"
@@ -63,7 +63,7 @@ main() {
 
   mkdir -p "$(dirname "$output")"
   cat > "$output" <<EOF
-cask "google-document-ocr" do
+cask "google-document-ocr-gateway" do
   version "$version"
   arch arm: "darwin-arm64", intel: "darwin-x64"
 
@@ -71,10 +71,10 @@ cask "google-document-ocr" do
          intel: "$darwin_x64_sha"
 
   url "$release_base_url/$artifact_name-#{version}-#{arch}.dmg",
-      verified: "github.com/user/repo/releases/download/"
-  name "google-document-ocr"
+      verified: "github.com/tacogips/google-document-ocr-gateway/releases/download/"
+  name "google-document-ocr-gateway"
   desc "A Swift command line tool"
-  homepage "https://github.com/user/repo"
+  homepage "https://github.com/tacogips/google-document-ocr-gateway"
 
   livecheck do
     url :url
