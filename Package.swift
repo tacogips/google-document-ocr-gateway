@@ -12,8 +12,8 @@ let package = Package(
     .executable(name: "google-document-ocr-gateway", targets: ["AppCLI"])
   ],
   dependencies: [
-    .package(url: "https://github.com/tacogips/google-gateway-auth.git", revision: "dda86daa5ca1b9a761977e4a9891e4e4380cf4dd"),
-    .package(url: "https://github.com/tacogips/google-service-gateway.git", revision: "28a86e2e06e1b57642c4c1dd37dc12fa2c8db0e4")
+    .package(url: "https://github.com/tacogips/google-gateway-auth.git", revision: "2951cd8829d94d0b16e2a3bfdca301e57bb1f862"),
+    .package(url: "https://github.com/tacogips/google-service-gateway.git", revision: "e2d11843fd5afa6065ec438f8d2a0149c88f4aed")
   ],
   targets: [
     .target(name: "AppCore", dependencies: [.product(name: "GoogleServiceGatewayCore", package: "google-service-gateway")], resources: [.copy("Resources")]),

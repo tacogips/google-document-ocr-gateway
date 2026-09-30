@@ -10,7 +10,7 @@ public struct DocumentAIInteractiveAuth: Sendable {
   private let authorizer: any InteractiveOAuthAuthorizer
 
   public init(transport: any DocumentAIHTTPTransport = DocumentAIURLSessionTransport(),
-              authorizer: any InteractiveOAuthAuthorizer = LoopbackOAuthAuthorizer()) {
+              authorizer: any InteractiveOAuthAuthorizer = LoopbackOAuthAuthorizer(prefix: "GOOGLE_DOCUMENT_OCR_GATEWAY_")) {
     self.transport = transport; self.authorizer = authorizer
   }
 
