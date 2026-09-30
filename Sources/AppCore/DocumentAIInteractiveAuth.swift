@@ -48,7 +48,8 @@ public struct DocumentAIInteractiveAuth: Sendable {
         state = (try? DocumentAIStaticTokenProvider(token: raw)) == nil ? "INVALID" : "READY"
       } else if let token {
         if token.tokenType.caseInsensitiveCompare("Bearer") != .orderedSame
-            || (try? DocumentAIStaticTokenProvider(token: token.accessToken)) == nil { state = "INVALID"
+            || (try? DocumentAIStaticTokenProvider(token: token.accessToken)) == nil
+            || (inline == nil && Set(token.scopes) != [Self.scope]) { state = "INVALID"
         } else { state = token.expiresAt > Date().addingTimeInterval(60) ? "READY" : "EXPIRED" }
       } else { state = inline != nil || FileManager.default.fileExists(atPath: url.path) ? "INVALID" : "MISSING" }
       return try JSONSerialization.data(withJSONObject: [
@@ -97,6 +98,9 @@ public struct DocumentAIInteractiveAuth: Sendable {
       token = try await GoogleOAuthBrowserLogin(oauth: oauth, authorizer: authorizer).login(
         client: client, scopes: [Self.scope], openBrowser: openBrowser, timeout: timeout)
     } catch { throw DocumentAIError.missingCredential("Google browser authorization failed") }
+    guard Set(token.scopes) == [Self.scope] else {
+      throw DocumentAIError.missingCredential("Google browser authorization returned unexpected scopes")
+    }
     let store = DocumentAIOAuthTokenStore(accessToken: token.accessToken, refreshToken: token.refreshToken,
                                         tokenType: token.tokenType, scopes: token.scopes, expiresAt: token.expiresAt)
     try DocumentAIOAuthStorage.write(store, to: url)

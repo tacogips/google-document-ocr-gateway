@@ -54,6 +54,18 @@ private let desktopJSON = #"{"installed":{"client_id":"ocr-desktop","auth_uri":"
   #expect(try Data(contentsOf: path) == before)
 }
 
+@Test func ocrBroaderLoginGrantNeverPersistsAndStatusRejectsIt() async throws {
+  let root = try authRoot(); defer { try? FileManager.default.removeItem(at: root) }
+  let env = ["XDG_STATE_HOME": root.path, "GOOGLE_DOCUMENT_OCR_GATEWAY_OAUTH_CLIENT_JSON": desktopJSON]
+  let auth = DocumentAIInteractiveAuth(transport: OCRAuthTransport(extraScope: true), authorizer: OCRFixtureAuthorizer())
+  let path = auth.tokenURL(environment: env)
+  await #expect(throws: DocumentAIError.self) { try await auth.run(arguments: ["login"], environment: env) }
+  #expect(!FileManager.default.fileExists(atPath: path.path))
+  try DocumentAIOAuthStorage.write(.init(accessToken: "fixture-token", scopes: [DocumentAIInteractiveAuth.scope, "https://www.googleapis.com/auth/drive.readonly"], expiresAt: .distantFuture), to: path)
+  let status = try await auth.run(arguments: ["status"], environment: env)
+  #expect(String(data: status, encoding: .utf8)?.contains("INVALID") == true)
+}
+
 @Test func ocrStoredTokenRefreshesAndPersistsRotatedGrant() async throws {
   let root = try authRoot(); defer { try? FileManager.default.removeItem(at: root) }
   let env = ["XDG_STATE_HOME": root.path, "GOOGLE_DOCUMENT_OCR_GATEWAY_OAUTH_CLIENT_JSON": desktopJSON]
@@ -129,12 +141,14 @@ private struct OCRNeverAuthorizer: InteractiveOAuthAuthorizer {
 
 private struct OCRAuthTransport: DocumentAIHTTPTransport {
   var missingRefresh = false
+  var extraScope = false
   func send(_ request: URLRequest) async throws -> DocumentAIHTTPResponse {
     if request.url?.host == "oauth2.googleapis.com" {
       if request.url?.path == "/revoke" { return DocumentAIHTTPResponse(status: 200, body: Data()) }
       let refresh = missingRefresh ? "" : #", "refresh_token":"refresh-token""#
       let body = #"{"access_token":"login-token","token_type":"Bearer","expires_in":3600,"scope":"https://www.googleapis.com/auth/cloud-platform""# + refresh + "}"
-      return DocumentAIHTTPResponse(status: 200, body: Data(body.utf8))
+      let result = extraScope ? body.replacingOccurrences(of: "https://www.googleapis.com/auth/cloud-platform", with: "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/drive.readonly") : body
+      return DocumentAIHTTPResponse(status: 200, body: Data(result.utf8))
     }
     #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer login-token")
     return DocumentAIHTTPResponse(status: 200, body: Data(#"{"name":"processor"}"#.utf8))

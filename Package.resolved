@@ -1,5 +1,5 @@
 {
-  "originHash" : "eed948afd698e3887e2ee448b3d1d01900c55d2ddb66b294bb215c7fea8449be",
+  "originHash" : "17e29067f18f5b932ac42041122975f2918c22909162fa3f72a42cd561533ac4",
   "pins" : [
     {
       "identity" : "google-gateway-auth",
@@ -14,7 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tacogips/google-service-gateway.git",
       "state" : {
-        "revision" : "f40f11aed5ca17f497d0bde7eddb77db0c084fc3"
+        "revision" : "a42adf80d421de6f42ab53cc44b7892423c57bb8"
       }
     },
     {
