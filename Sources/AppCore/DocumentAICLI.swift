@@ -1,25 +1,35 @@
 import Foundation
+import GoogleServiceGatewayCore
 
 /// Shared CLI adapter. Success and error output is JSON except for help/version.
 public struct DocumentAICLI: Sendable {
   public let arguments: [String]
 
   private let transport: any DocumentAIHTTPTransport
+  private let environment: [String: String]
+  private let authAuthorizer: any InteractiveOAuthAuthorizer
   private let injectedTokens: (any DocumentAIAccessTokenProvider)?
 
   public init(
     arguments: [String], transport: any DocumentAIHTTPTransport = DocumentAIURLSessionTransport(),
-    tokens: (any DocumentAIAccessTokenProvider)? = nil
+    tokens: (any DocumentAIAccessTokenProvider)? = nil,
+    environment: [String: String] = ProcessInfo.processInfo.environment,
+    authAuthorizer: any InteractiveOAuthAuthorizer = LoopbackOAuthAuthorizer()
   ) {
     self.arguments = arguments
     self.transport = transport
     self.injectedTokens = tokens
+    self.environment = environment
+    self.authAuthorizer = authAuthorizer
   }
 
   public static let usage = """
   Usage: google-document-ocr-gateway <command> [options]
     methods [--api-version v1|v1beta3]        List every API method and its capability
     discovery [--api-version v1|v1beta3]      Print full API discovery JSON and schemas
+    auth login [--credential ID]            Open Google login and save credentials
+    auth status [--credential ID]           Report readiness without token values
+    auth revoke --credential ID --confirm-credential ID   Revoke and remove saved credentials
     reader|writer|deleter METHOD [options]   Call a Document AI method
 
   METHOD is a discovery ID, e.g. projects.locations.processors.process.
@@ -28,6 +38,7 @@ public struct DocumentAICLI: Sendable {
     --location LOCATION      Regional endpoint (default: us); global for global endpoint
     --param NAME=VALUE       Path or query parameter; repeat for repeated query values
     --body FILE              JSON request file; '-' reads standard input
+    --credential ID          Saved/profile credential (default: google-personal)
     --access-token-env NAME  Token variable (default: GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN)
     --service-account-env NAME  Environment variable containing service-account JSON
     --all-pages             Return an array of complete pages for a paginated read
@@ -48,6 +59,10 @@ public struct DocumentAICLI: Sendable {
     guard let command = arguments.first else { return Data(Self.usage.utf8) }
     if arguments == ["--help"] || arguments == ["-h"] { return Data(Self.usage.utf8) }
     if arguments == ["--version"] { return Data(Version.current.utf8) }
+    if command == "auth" {
+      return try await DocumentAIInteractiveAuth(transport: transport, authorizer: authAuthorizer).run(
+        arguments: Array(arguments.dropFirst()), environment: environment)
+    }
     let capability = DocumentAICapability(rawValue: command)
     guard capability != nil || command == "methods" || command == "discovery" else {
       throw DocumentAIError.invalidArgument("Unknown command: \(command)")
@@ -68,7 +83,7 @@ public struct DocumentAICLI: Sendable {
     var parameters: [String: [String]] = [:]
     var index = optionStart
     let allowed = capability == nil ? ["--api-version"] :
-      ["--api-version", "--location", "--body", "--access-token-env", "--param", "--all-pages", "--file", "--mime-type", "--wait", "--timeout", "--poll-interval", "--service-account-env"]
+      ["--api-version", "--location", "--body", "--access-token-env", "--param", "--all-pages", "--file", "--mime-type", "--wait", "--timeout", "--poll-interval", "--service-account-env", "--credential"]
     while index < arguments.count {
       let flag = arguments[index]
       if ["--all-pages", "--wait"].contains(flag), capability != nil {
@@ -147,12 +162,23 @@ public struct DocumentAICLI: Sendable {
       guard options["--access-token-env"] == nil else {
         throw DocumentAIError.invalidArgument("Choose one credential source")
       }
-      guard let json = ProcessInfo.processInfo.environment[variable] else {
+      guard let json = environment[variable] else {
         throw DocumentAIError.missingCredential(variable)
       }
       return try DocumentAIServiceAccountTokenProvider(credentialJSON: Data(json.utf8))
     }
-    return DocumentAIEnvironmentTokenProvider(variable: options["--access-token-env"] ?? "GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN")
+    let id = options["--credential"] ?? "google-personal"
+    guard id.range(of: "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$", options: .regularExpression) != nil else {
+      throw DocumentAIError.invalidArgument("Invalid credential ID")
+    }
+    if let external = try DocumentAIExternalCredentials.tokenProvider(
+      environment: environment, credentialID: id, tokenVariable: options["--access-token-env"] ?? "GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN", transport: transport
+    ) { return external }
+    let auth = DocumentAIInteractiveAuth(transport: transport, authorizer: authAuthorizer)
+    if options["--access-token-env"] == nil, FileManager.default.fileExists(atPath: auth.tokenURL(id: id, environment: auth.credentialEnvironment(id: id, environment: environment)).path) {
+      return DocumentAIStoredOAuthTokenProvider(auth: auth, environment: environment, id: id)
+    }
+    throw DocumentAIError.missingCredential(options["--access-token-env"] ?? "GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN")
   }
 
   private func execute(

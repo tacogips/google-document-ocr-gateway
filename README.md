@@ -153,3 +153,49 @@ checks that a relocated binary, including invocation through a symlink, uses
 its installed discovery resources. Ship the `google-document-ocr-gateway_AppCore.bundle`
 next to the executable on macOS; the Homebrew archive and Cask staging scripts
 include it. The formula keeps both under `libexec` and installs a launcher.
+
+## Authentication and external credentials
+
+`auth login [--credential ID]` opens Google's browser authorization flow and
+saves a refreshable credential. The default ID is `google-personal`. Ordinary
+commands use that saved credential without another login; `--credential ID`
+selects a different one. `auth status` reports readiness without token values.
+`auth revoke --credential ID --confirm-credential ID` revokes and removes the
+selected credential after Google accepts revocation.
+
+The browser flow uses the shared `GoogleServiceGatewayCore` implementation at
+revision `28a86e2e06e1b57642c4c1dd37dc12fa2c8db0e4` ([draft library PR](https://github.com/tacogips/google-service-gateway/pull/1)).
+A registered desktop OAuth application is still required through the application
+inputs below. Distribution of a common application client, and live browser login
+verification, remain pending.
+
+Credentials obtained elsewhere remain usable without `auth login`. All variables
+use the `GOOGLE_DOCUMENT_OCR_GATEWAY_` prefix:
+
+| Suffix | Value |
+| --- | --- |
+| `ACCESS_TOKEN` | Access token string |
+| `TOKEN_STORE_JSON` | Token-store JSON contents |
+| `TOKEN_STORE_PATH` | Token-store file path |
+| `OAUTH_CLIENT_JSON` | Installed desktop OAuth application JSON contents |
+| `OAUTH_CLIENT_PATH` | Installed desktop OAuth application file path |
+| `SERVICE_ACCOUNT_JSON` | Service-account JSON contents |
+| `SERVICE_ACCOUNT_PATH` | Service-account file path |
+
+Profile inputs use `CREDENTIAL_<NORMALIZED_ID>_<SUFFIX>` under the same prefix.
+Normalize the ID to uppercase and replace hyphens with underscores. A profile's
+explicit token source replaces the product's default token source. Choose one
+token source and one application source; ambiguous inputs fail without printing
+values. Existing `--access-token-env` and `--service-account-env` remain supported.
+
+Direct tokens and fresh external token stores need neither application JSON nor
+login. External token JSON uses `accessToken`, optional `refreshToken`,
+`tokenType` (`Bearer`), `scopes`, and `expiresAt` (ISO-8601 or Swift Date encoding).
+External stores are read-only; expired external tokens need replacement. Managed
+login credentials refresh using the configured application and persist privately.
+
+Saved credentials default to
+`$XDG_STATE_HOME/google-document-ocr-gateway/credentials/<ID>.json`, or
+`~/.local/state/google-document-ocr-gateway/credentials/<ID>.json` when unset.
+Secret files must be private regular files owned by the current user; managed
+files are written with mode `0600` inside a private directory.
