@@ -57,7 +57,7 @@ public struct DocumentAICLI: Sendable {
 
   public func run() async throws -> Data {
     guard let command = arguments.first else { return Data(Self.usage.utf8) }
-    if arguments == ["--help"] || arguments == ["-h"] { return Data(Self.usage.utf8) }
+    if arguments == ["--help"] || arguments == ["-h"] || arguments == ["auth"] { return Data(Self.usage.utf8) }
     if arguments == ["--version"] { return Data(Version.current.utf8) }
     if command == "auth" {
       return try await DocumentAIInteractiveAuth(transport: transport, authorizer: authAuthorizer).run(
