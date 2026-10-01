@@ -1,4 +1,5 @@
 import Foundation
+import GoogleGatewayAuth
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
@@ -15,8 +16,8 @@ public struct DocumentAIInteractiveAuth: Sendable {
   }
 
   public func run(arguments: [String], environment: [String: String]) async throws -> Data {
-    guard let command = arguments.first, ["login", "status", "revoke"].contains(command) else {
-      throw DocumentAIError.invalidArgument("auth requires login, status, or revoke")
+    guard let command = arguments.first, ["login", "logout", "status", "revoke"].contains(command) else {
+      throw DocumentAIError.invalidArgument("auth requires login, logout, status, or revoke")
     }
     var flags: [String: String] = [:]
     var index = 1
@@ -57,6 +58,19 @@ public struct DocumentAIInteractiveAuth: Sendable {
         "tokenSource": inline != nil ? "ENVIRONMENT_JSON" : (external ? "ENVIRONMENT_TOKEN" : "FILE"), "hasRefreshToken": token?.refreshToken != nil,
         "tokenStorePath": external ? NSNull() : url.path as Any
       ], options: [.sortedKeys])
+    }
+    if command == "logout" {
+      let external = selected["GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN"] != nil
+        || selected["GOOGLE_DOCUMENT_OCR_GATEWAY_TOKEN_STORE_JSON"] != nil
+        || selected["GOOGLE_DOCUMENT_OCR_GATEWAY_TOKEN_STORE_PATH"] != nil
+      let result = try GatewayLogout.perform(externalCredential: external) {
+        let exists = FileManager.default.fileExists(atPath: url.path)
+        if exists { try DocumentAIOAuthStorage.remove(url) }
+        return exists
+      }
+      return try JSONSerialization.data(withJSONObject: ["ok": true, "credential": id,
+        "state": result.state, "localTokenDeleted": result.localTokenDeleted,
+        "externalCredentialPreserved": result.externalCredentialPreserved], options: [.sortedKeys])
     }
     guard selected["GOOGLE_DOCUMENT_OCR_GATEWAY_ACCESS_TOKEN"] == nil,
           selected["GOOGLE_DOCUMENT_OCR_GATEWAY_TOKEN_STORE_JSON"] == nil else {

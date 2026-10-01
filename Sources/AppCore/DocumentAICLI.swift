@@ -28,6 +28,7 @@ public struct DocumentAICLI: Sendable {
     methods [--api-version v1|v1beta3]        List every API method and its capability
     discovery [--api-version v1|v1beta3]      Print full API discovery JSON and schemas
     auth login [--credential ID]            Open Google login and save credentials
+    auth logout [--credential ID]           Remove local credentials without revoking Google grants
     auth status [--credential ID]           Report readiness without token values
     auth revoke --credential ID --confirm-credential ID   Revoke and remove saved credentials
     reader|writer|deleter METHOD [options]   Call a Document AI method

@@ -154,3 +154,28 @@ private struct OCRAuthTransport: DocumentAIHTTPTransport {
     return DocumentAIHTTPResponse(status: 200, body: Data(#"{"name":"processor"}"#.utf8))
   }
 }
+
+@Test func ocrLogoutDeletesOnlyLocalTokenAndIsIdempotent() async throws {
+  let root = try authRoot(); defer { try? FileManager.default.removeItem(at: root) }
+  let env = ["XDG_STATE_HOME": root.path]
+  let auth = DocumentAIInteractiveAuth(authorizer: OCRNeverAuthorizer())
+  let path = auth.tokenURL(environment: env)
+  try DocumentAIOAuthStorage.write(.init(accessToken: "local-fixture", scopes: [DocumentAIInteractiveAuth.scope], expiresAt: .distantFuture), to: path)
+  let first = try await auth.run(arguments: ["logout"], environment: env)
+  #expect(String(data: first, encoding: .utf8)?.contains("LOGGED_OUT") == true)
+  #expect(!FileManager.default.fileExists(atPath: path.path))
+  _ = try await auth.run(arguments: ["logout"], environment: env)
+}
+
+@Test func ocrLogoutPreservesExternalJSONAndPath() async throws {
+  let root = try authRoot(); defer { try? FileManager.default.removeItem(at: root) }
+  let file = root.appendingPathComponent("external.json")
+  let original = Data("external-fixture".utf8)
+  try original.write(to: file)
+  for source in ["ACCESS_TOKEN": "external-fixture", "TOKEN_STORE_JSON": "external-fixture", "TOKEN_STORE_PATH": file.path] {
+    let result = try await DocumentAIInteractiveAuth(authorizer: OCRNeverAuthorizer()).run(arguments: ["logout"],
+      environment: ["GOOGLE_DOCUMENT_OCR_GATEWAY_" + source.key: source.value])
+    #expect(String(data: result, encoding: .utf8)?.contains("EXTERNAL_CREDENTIAL_PRESERVED") == true)
+    #expect(try Data(contentsOf: file) == original)
+  }
+}
